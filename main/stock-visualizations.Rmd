@@ -1,0 +1,166 @@
+---
+title: "Stock Visualizations Using ggplot2 - TSLA/AAPL"
+author: "Kyle Scott"
+date: 
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Motivation
+
+As an avid stock market follower, I want to explore a few different visuals of stocks using R to practice my skills with ggplot2. This project is unlikely to produce any major insights or modeling - just an exercise for myself.
+
+### Fetching Data
+
+The data is being pulled from the "quantmod" package, using the Yahoo Finance API. This gives simple data such as Date, Open Price, High/Low Price, Close Price, Volume and Adjusted Price. A few additional metrics were added for plotting purposes.
+
+```{r, warning = F, echo = F}
+suppressPackageStartupMessages(library(TTR))
+suppressPackageStartupMessages(library(quantmod))
+```
+
+```{r}
+###
+# fetching the data using the Yahoo Finance API
+###
+
+aapl <- getSymbols("AAPL", from = "2017-01-01", auto.assign = F)
+
+tsla <- getSymbols("TSLA", from = "2017-01-01", auto.assign = F)
+```
+
+### Mutate Data
+
+```{r}
+aapl_df <- data.frame(Date=index(aapl), coredata(aapl))
+
+tsla_df <- data.frame(Date=index(tsla), coredata(tsla))
+```
+
+```{r}
+colnames(aapl_df) <- c("Date", "Open Price", "High Price", "Low Price", "Close Price", "Volume", "Adjusted Price")
+
+colnames(tsla_df) <- c("Date", "Open Price", "High Price", "Low Price", "Close Price", "Volume", "Adjusted Price")
+```
+
+```{r}
+aapl_df <- dplyr::mutate(aapl_df, Ticker = 'AAPL')
+
+tsla_df <- dplyr::mutate(tsla_df, Ticker = 'TSLA')
+```
+
+```{r}
+aapl_st <- log(aapl_df$`Open Price`)
+
+tsla_st <- log(tsla_df$`Open Price`)
+```
+
+```{r}
+aapl_df <- cbind(aapl_df, aapl_st)
+
+tsla_df <- cbind(tsla_df, tsla_st)
+```
+
+```{r}
+colnames(aapl_df)[9] <- "log(Open Price)"
+
+colnames(tsla_df)[9] <- "log(Open Price)"
+```
+
+```{r}
+all_stocks_df <- rbind(aapl_df, tsla_df)
+```
+
+```{r}
+pct_chng <- (all_stocks_df$`Close Price`[2:nrow(all_stocks_df)] - all_stocks_df$`Close Price`[1:(nrow(all_stocks_df) - 1)]) / all_stocks_df$`Close Price`[2:nrow(all_stocks_df)]
+```
+
+```{r}
+pct_chng <- c(NA, pct_chng)
+```
+
+```{r}
+all_stocks_df <- cbind(all_stocks_df, pct_chng)
+```
+
+```{r}
+colnames(all_stocks_df)[10] <- "Daily Percent Change"
+```
+
+```{r}
+all_stocks_df$`Daily Percent Change` <- all_stocks_df$`Daily Percent Change` * 100
+```
+
+```{r}
+all_stocks_df$`Daily Percent Change`[(nrow(all_stocks_df) / 2) + 1] <- NA
+```
+
+### The Data
+
+```{r}
+head(all_stocks_df)
+tail(all_stocks_df)
+```
+
+### Visualizations
+
+```{r, warning=F, fig.width = 10, fig.height = 8, echo=F}
+library(ggplot2)
+
+ggplot(data = all_stocks_df, aes(x = Date, y = `Open Price`, color = Ticker)) +
+  
+  geom_line() +
+  
+  labs(title = 'Stock Price Trend from 01-01-2017 to Present', subtitle = 'Stable vs Volatile stock comparison of $AAPL and $TSLA. \nDifferent Scales - NOT USEFUL for comparison.', caption = '*Pricing Data pulled from\nthe quantmod package using\nthe Yahoo Finance API', y = "Price") +
+  
+  scale_x_date(date_breaks = "6 month", date_labels = "%m-%y", guide = guide_axis(n.dodge = 2)) +
+  
+  scale_y_continuous(breaks = seq(0, 1300, 50)) +
+  
+  scale_color_manual(values = c('light blue', 'red')) +
+  
+  theme_bw(base_family = "mono") +
+  
+  theme(legend.background = element_rect(color = 'black'))
+```
+
+```{r, warning=F, fig.width = 10, fig.height = 8, echo=F}
+ggplot(data = all_stocks_df, aes(x = Date, y = `log(Open Price)`, color = Ticker)) +
+  
+  geom_line() +
+  
+  labs(title = 'Stock Price Trend from 01-01-2017 to Present', subtitle = 'Stable vs Volatile stock comparison of $AAPL and $TSLA plotted on a Logarithmic price scale. \nPlots prices based on percentage change - better for comparison.', caption = '*Pricing Data pulled from\nthe quantmod package using\nthe Yahoo Finance API', y = "log(Price)") +
+  
+  scale_x_date(date_breaks = "6 month", date_labels = "%m-%y", guide = guide_axis(n.dodge = 2)) +
+  
+  scale_y_continuous(breaks = seq(0, 8, 0.5)) +
+  
+  scale_color_manual(values = c('light blue', 'red')) +
+  
+  theme_bw(base_family = "mono") +
+  
+  theme(legend.background = element_rect(color = 'black'))
+```
+
+```{r, warning=F, fig.width=10, fig.height = 8, echo=F}
+ggplot(data = all_stocks_df, aes(x = Date, y = `Daily Percent Change`, color = Ticker)) +
+  
+  geom_line() +
+  
+  labs(title = 'Daily Percentage Change in Stock Price from 01-01-2017 to Present', subtitle = 'Large spikes across the graph for TSLA, including percentage drops \nof over 15% 7 times for TSLA to 0 for AAPL. Day to day volatility \nclearly higher for TSLA.', caption = '*Pricing Data pulled from\nthe quantmod package using\nthe Yahoo Finance API') +
+  
+  scale_x_date(date_breaks = "6 month", date_labels = "%m-%y", guide = guide_axis(n.dodge = 2)) +
+  
+  scale_y_continuous(breaks = seq(-25, 15, 5)) +
+  
+  scale_color_manual(values = c('light blue', 'red')) +
+  
+  theme_bw(base_family = "mono") +
+  
+  theme(legend.background = element_rect(color = 'black')) +
+  
+  facet_wrap(~Ticker)
+```
