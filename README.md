@@ -5,5 +5,5 @@ ggplot2 is a visualization package in the R programming language. I am using thi
 To use ggplot2, open up an R session and type:
 
 ```r
-library(ggpplot2)
+library(ggplot2)
 ```
