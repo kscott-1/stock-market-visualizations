@@ -1,3 +1,9 @@
-# Stock Analysis
+# Stock Market Visualizations with ggplot2
 
-This is a project I did in the Summer of 2022 in the UCF MSDA program. The goal of this project was to showcase improvements in my skills from a past project. All data is sourced from the Yahoo Finance API and extracted within R.
+ggplot2 is a visualization package in the R programming language. I am using this repository to practice using this package.
+
+To use ggplot2, open up an R session and type:
+
+```r
+library(ggpplot2)
+```
