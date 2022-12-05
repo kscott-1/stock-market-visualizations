@@ -383,8 +383,8 @@ aapl &lt;- getSymbols(&quot;AAPL&quot;, from = &quot;2017-01-01&quot;, auto.assi
 
 tsla &lt;- getSymbols(&quot;TSLA&quot;, from = &quot;2017-01-01&quot;, auto.assign = F)</code></pre>
 </div>
-<div id="clean-and-mutate-data" class="section level3">
-<h3>Clean and Mutate Data</h3>
+<div id="mutate-data" class="section level3">
+<h3>Mutate Data</h3>
 <pre class="r"><code>aapl_df &lt;- data.frame(Date=index(aapl), coredata(aapl))
 
 tsla_df &lt;- data.frame(Date=index(tsla), coredata(tsla))</code></pre>
@@ -424,10 +424,10 @@ colnames(tsla_df)[9] &lt;- &quot;log(Open Price)&quot;</code></pre>
 ##   Adjusted Price Ticker log(Open Price) Daily Percent Change
 ## 1       27.17476   AAPL        3.365570                   NA
 ## 2       27.14434   AAPL        3.366002           -0.1120531
-## 3       27.28238   AAPL        3.366606            0.5059635
+## 3       27.28237   AAPL        3.366606            0.5059635
 ## 4       27.58653   AAPL        3.373997            1.1025392
 ## 5       27.83921   AAPL        3.383966            0.9076326
-## 6       27.86729   AAPL        3.390894            0.1007506</code></pre>
+## 6       27.86728   AAPL        3.390894            0.1007506</code></pre>
 <pre class="r"><code>tail(all_stocks_df)</code></pre>
 <pre><code>##            Date Open Price High Price Low Price Close Price    Volume
 ## 2977 2022-11-25     185.06     185.20    180.63      182.86  50672700
