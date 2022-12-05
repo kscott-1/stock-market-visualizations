@@ -7,3 +7,5 @@ To use ggplot2, open up an R session and type:
 ```r
 library(ggplot2)
 ```
+
+To view the output for this project, please visit: https://kscott-1.github.io/stock-market-visualizations/
